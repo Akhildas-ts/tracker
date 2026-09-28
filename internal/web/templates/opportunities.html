@@ -1,0 +1,59 @@
+{{define "content"}}
+{{template "career-tabs" .}}
+<header class="page-head">
+  <div>
+    <h1>Opportunities</h1>
+    <p class="muted">Roles you've researched. Researching a role doesn't count as applying.</p>
+  </div>
+  <a class="btn primary" href="/career/opportunities/new">+ Add opportunity</a>
+</header>
+
+<form class="filters card{{if or .F.Country .F.Match .F.Go .F.Remote .F.Visa .F.Relocation}} open{{end}}" method="get">
+  <input type="search" name="q" value="{{.F.Search}}" placeholder="Search title, company, skills…" aria-label="Search opportunities">
+  <button type="button" class="btn filter-toggle">Filters</button>
+  <select name="country" class="auto-submit" aria-label="Country">
+    <option value="">All countries</option>
+    {{range .Countries}}<option {{if eq . $.F.Country}}selected{{end}}>{{.}}</option>{{end}}
+  </select>
+  <select name="match" class="auto-submit" aria-label="Profile match"><option value="">Any match</option>{{options .MatchOpts .F.Match}}</select>
+  <select name="go" class="auto-submit" aria-label="Go relevance"><option value="">Any {{skill}} relevance</option>{{options .GoOpts .F.Go}}</select>
+  <select name="remote" class="auto-submit" aria-label="Remote"><option value="">Remote: any</option>{{options .RemoteOpts .F.Remote}}</select>
+  <select name="visa" class="auto-submit" aria-label="Visa sponsorship"><option value="">Visa: any</option>{{options .YesNo .F.Visa}}</select>
+  <select name="relocation" class="auto-submit" aria-label="Relocation"><option value="">Relocation: any</option>{{options .YesNo .F.Relocation}}</select>
+  <button type="submit" class="btn">Search</button>
+  {{if .Filtered}}<a href="/career/opportunities">Clear</a>{{end}}
+</form>
+
+<section class="card">
+{{if .Opportunities}}
+  <div class="table-wrap">
+  <table class="table stack">
+    <thead><tr><th>Role</th><th>Country</th><th>{{skill}}</th><th>Remote</th><th>Visa</th><th>Relocation</th><th>Match</th><th>Researched</th><th>Application</th></tr></thead>
+    <tbody>
+    {{range .Opportunities}}
+      <tr>
+        <td class="primary"><a href="/career/opportunities/{{.ID}}"><b>{{.Title}}</b></a><br><small class="muted">{{.Company}}{{if .Location}} · {{.Location}}{{end}}</small></td>
+        <td data-label="Country">{{.Country}}</td>
+        <td data-label="{{skill}}"><span class="tag g-{{.GoRelevance}}" title="{{goLabel .GoRelevance}}">{{if eq .GoRelevance "core"}}Main{{else if eq .GoRelevance "partial"}}Partial{{else if eq .GoRelevance "none"}}No{{else}}?{{end}}</span></td>
+        <td data-label="Remote">{{remoteLabel .Remote}}</td>
+        <td data-label="Visa">{{if eq .Visa "yes"}}Yes{{else if eq .Visa "no"}}No{{else}}?{{end}}</td>
+        <td data-label="Relocation">{{if eq .Relocation "yes"}}Yes{{else if eq .Relocation "no"}}No{{else}}?{{end}}</td>
+        <td data-label="Match"><span class="badge m-{{.Match}}">{{matchLabel .Match}}</span></td>
+        <td data-label="Researched">{{short .ResearchedOn}}</td>
+        <td data-label="Application">{{if .ApplicationID}}<a href="/career/applications/{{.ApplicationID}}"><span class="badge s-{{.ApplicationStatus}}">{{statusLabel .ApplicationStatus}}</span></a>{{else}}<a class="btn small" href="/career/applications/new?opportunity={{.ID}}">Track</a>{{end}}</td>
+      </tr>
+    {{end}}
+    </tbody>
+  </table>
+  </div>
+{{else if .Filtered}}
+  <p class="empty">No opportunities match these filters.</p>
+{{else}}
+  <div class="empty">
+    <p><b>No opportunities yet.</b></p>
+    <p>Log roles as you research them: company, requirements, visa and relocation details, and how well your profile fits.</p>
+    <a class="btn primary" href="/career/opportunities/new">+ Add opportunity</a>
+  </div>
+{{end}}
+</section>
+{{end}}

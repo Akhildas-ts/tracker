@@ -1,9 +1,13 @@
 # Daily Habit & Career Tracker
 
-A fast, local web app that answers two questions every day: *How am I doing today?* and *Am I consistently
-working toward finding a job abroad?* It tracks daily habits and tasks, logs job-search activity (companies,
-opportunities, applications, outreach, contacts), and shows weekly and monthly progress. It runs entirely on
-your own machine, and your data never leaves it.
+A fast, local web app for building daily habits and, optionally, running a job search. It answers two
+questions every day: *How am I doing today?* and *Am I consistently working toward my goals?* Track any habits
+you like, add one-off daily tasks, log job-search activity (companies, opportunities, applications, outreach,
+contacts), and see weekly and monthly progress. It runs entirely on your own machine, and your data never
+leaves it.
+
+Each person who runs it gets their own private copy with their own habits: there are no accounts and nothing
+is shared.
 
 ## Run it
 
@@ -16,7 +20,9 @@ cd tracker
 go run ./cmd/tracker
 ```
 
-Then open **http://127.0.0.1:8080**.
+Then open **http://127.0.0.1:8080**. The first time, a short setup asks for your name, whether you're
+job hunting (this shows or hides the Career section), and which starter habits you want, or none. After that,
+add, edit, reorder, archive or delete habits any time on the **Habits** page.
 
 To build a binary instead:
 
@@ -57,8 +63,10 @@ Options (flags or environment variables):
 - **Tasks**: one-off to-dos for the day. Unfinished tasks from earlier days carry over to today.
 - **Career**
   - *Overview*: this week's and this month's activity, the application pipeline, pending applications and recent activity.
-  - *Applications*: search, filter by status or country, and change a status right in the list. Every change is dated.
-  - *Opportunities*: roles you've researched, with Go relevance, remote, relocation, visa sponsorship,
+  - *Applications*: search, filter by status or country, and change a status right in the list. Every change is dated
+    (use *Status changed on another day?* when recording one late). A new application can pick a researched role or
+    just take a company + job title, which also saves the role under Opportunities.
+  - *Opportunities*: roles you've researched, with relevance to your main skill, remote, relocation, visa sponsorship,
     experience, skills and your own profile-match rating. Researching a role doesn't count as applying.
   - *Outreach*: cold and recruiter emails, LinkedIn messages, referral requests and follow-ups, with replies.
   - *Companies*: every company with its contacts (recruiters, hiring managers), opportunities,
@@ -72,8 +80,19 @@ Options (flags or environment variables):
   time and notes.
 - **Settings**: display name, where your data lives, manual backup and JSON export.
 
-A fresh database starts with these habits: No Smoking, Learning, Communication, Gym, LeetCode,
-Job Outreach and Opportunity Analysis. Edit or archive any of them on the Habits page.
+### Habits are yours
+
+Setup offers starter habits (health, growth and job-search ideas) but nothing is fixed. On the **Habits** page:
+
+- **Add** any habit: Yes/No (e.g. *No smoking*), minutes (e.g. *Reading 30 min*) or a count (e.g. *8 glasses of
+  water*), with a daily target, the weekdays it applies to, an emoji, optional sub-counters and notes.
+- **Edit** name, target, days or type at any time. A new target applies from today; past days keep theirs.
+- **Reorder** with the arrows; the Today page follows that order.
+- **Archive** to hide a habit but keep its history (restore it any time), or **Delete** to remove it and its
+  history permanently.
+
+**Settings** lets you change your name, turn job-search tracking on or off, and set your main skill (used to
+label how relevant a job is to you, e.g. "Go" or "React").
 
 ## How numbers are calculated
 
@@ -100,6 +119,15 @@ All statistics are computed from the stored daily records:
   status changed. **Companies researched** counts companies by the date they were added. **Pending** is a
   current snapshot of submitted applications with no final outcome yet (Applied, Follow-up, Response, Interview).
 - The country filter uses the opportunity's country, or the company's country if the opportunity has none.
+- The same event is never counted twice: a follow-up message and moving the same application to Follow-up on
+  the same day is one follow-up; a reply to outreach and moving that application to Response on the same day is
+  one response.
+
+## Safety
+
+The app has no login because it only listens on `127.0.0.1`. It still refuses requests that come from other
+websites open in your browser (cross-site form posts and DNS-rebinding), escapes everything it displays, and
+uses parameterised SQL throughout. New data folders are created readable by your user only.
 
 ## Project layout
 

@@ -1,0 +1,53 @@
+{{define "layout"}}<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>{{.Title}} · Progress</title>
+<link rel="stylesheet" href="/static/app.css">
+</head>
+<body>
+<div class="app">
+  <aside class="sidebar" id="sidebar">
+    <a class="brand" href="/"><span class="logo" aria-hidden="true"></span>Progress</a>
+    {{if .Nav}}
+    <nav aria-label="Main">
+      <a href="/" {{if eq .Nav "dashboard"}}class="active" aria-current="page"{{end}}>{{template "icon-home"}}Dashboard</a>
+      <a href="/today" {{if eq .Nav "today"}}class="active" aria-current="page"{{end}}>{{template "icon-check"}}Today</a>
+      {{if careerOn}}
+      <a href="/career" {{if eq .Nav "career"}}class="active" aria-current="page"{{end}}>{{template "icon-briefcase"}}Career</a>
+      <div class="subnav">
+        <a href="/career" {{if eq .Sub "overview"}}class="active"{{end}}>Overview</a>
+        <a href="/career/applications" {{if eq .Sub "applications"}}class="active"{{end}}>Applications</a>
+        <a href="/career/opportunities" {{if eq .Sub "opportunities"}}class="active"{{end}}>Opportunities</a>
+        <a href="/career/outreach" {{if eq .Sub "outreach"}}class="active"{{end}}>Outreach</a>
+        <a href="/career/companies" {{if eq .Sub "companies"}}class="active"{{end}}>Companies</a>
+      </div>
+      {{end}}
+      <a href="/analytics" {{if eq .Nav "analytics"}}class="active" aria-current="page"{{end}}>{{template "icon-chart"}}Analytics</a>
+      <a href="/habits" {{if eq .Nav "habits"}}class="active" aria-current="page"{{end}}>{{template "icon-list"}}Habits</a>
+      <a href="/settings" {{if eq .Nav "settings"}}class="active" aria-current="page"{{end}}>{{template "icon-gear"}}Settings</a>
+    </nav>
+    {{end}}
+  </aside>
+  <div class="scrim" id="scrim"></div>
+
+  <div class="main-col">
+    <header class="topbar">
+      <button type="button" class="menu-btn" id="menu-btn" aria-label="Open menu" aria-controls="sidebar" aria-expanded="false">
+        <svg viewBox="0 0 24 24" width="22" height="22" aria-hidden="true"><path d="M4 6h16M4 12h16M4 18h16" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>
+      </button>
+      <span class="topbar-title">{{.Title}}</span>
+      {{$name := profile}}
+      <a class="profile" href="/settings" title="Settings">
+        <span class="avatar">{{if $name}}{{initial $name}}{{else}}<svg viewBox="0 0 24 24" width="16" height="16" aria-hidden="true"><circle cx="12" cy="8" r="4" fill="currentColor"/><path d="M4 21c0-4 4-6 8-6s8 2 8 6" fill="currentColor"/></svg>{{end}}</span><span class="profile-name">{{if $name}}{{$name}}{{else}}Set your name{{end}}</span>
+      </a>
+    </header>
+    <main>
+{{template "content" .}}
+    </main>
+  </div>
+</div>
+<script src="/static/app.js" defer></script>
+</body>
+</html>{{end}}

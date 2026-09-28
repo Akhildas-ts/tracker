@@ -1,0 +1,106 @@
+{{define "content"}}
+<header class="day-head">
+  <p class="muted">{{if .IsToday}}{{.Greeting}}{{with profile}}, {{.}}{{end}} 👋{{else}}Editing a past day · <a href="/today">back to today</a>{{end}}</p>
+  <div class="pager">
+    <a href="/today?date={{.Prev}}" aria-label="Previous day">←</a>
+    <h1><span class="long-date">{{.DateLabel}}</span><span class="short-date">{{.DateShort}}</span></h1>
+    {{if .Next}}<a href="/today?date={{.Next}}" aria-label="Next day">→</a>{{else}}<span class="disabled">→</span>{{end}}
+  </div>
+</header>
+
+<section class="card score">
+  <div class="score-line">
+    <span class="big" id="score-pct">{{pct .Score.Progress}}%</span>
+    <span class="muted"><b id="score-done">{{.Score.Completed}}</b> / <span id="score-total">{{.Score.Total}}</span> habits complete</span>
+  </div>
+  <div class="bar"><span id="score-bar" style="width: {{pct .Score.Progress}}%"></span></div>
+</section>
+
+{{if not .Rows}}
+<section class="card empty">
+  <p><b>No habits to track yet.</b></p>
+  <p>Add anything you want to do daily or on certain days: exercise, reading, practice…</p>
+  <a class="btn primary" href="/habits/new">+ Add a habit</a>
+</section>
+{{end}}
+<ul class="habits" data-date="{{.Date}}">
+{{range .Rows}}
+  <li class="card habit{{if .Done}} done{{end}}{{if not .Scheduled}} rest{{end}}"
+      data-id="{{.H.ID}}" data-kind="{{if .Outreach}}linked{{else}}{{.H.Kind}}{{end}}" data-target="{{num .Target}}" data-step="{{num .H.Step}}"
+      data-value="{{if .Logged}}{{num .Value}}{{end}}">
+    <div class="habit-main">
+      <div class="habit-title">
+        <span class="emoji">{{.H.Emoji}}</span>
+        <div>
+          <div class="name">{{.H.Name}}</div>
+          <div class="meta">
+            {{if .BeforeStart}}Not tracked yet · {{else if not .Scheduled}}Rest day · {{end}}{{target .H}} · 🔥 <span class="streak">{{.Streak}}</span> · best <span class="best">{{.Best}}</span>
+          </div>
+          {{with .Outreach}}<div class="meta outreach-breakdown">{{.Emails}} emails · {{.LinkedIn}} LinkedIn · {{.Other}} other · {{.Applications}} applications · <a href="/career/outreach">from Career</a></div>{{end}}
+        </div>
+      </div>
+      <div class="control">
+      {{if .Outreach}}
+        <div class="quick-outreach">
+          <input class="qo-company" list="company-names" placeholder="Company (optional)" aria-label="Company for quick outreach" maxlength="120">
+          <button type="button" class="btn small" data-outreach="cold_email">+ Email</button>
+          <button type="button" class="btn small" data-outreach="recruiter_email">+ Recruiter</button>
+          <button type="button" class="btn small" data-outreach="linkedin">+ LinkedIn</button>
+          <a class="btn small" href="/career/applications/new">+ Application</a>
+        </div>
+        <span class="of"><b class="sum">{{num .Value}}</b> / {{num .Target}}</span>
+      {{else if eq .H.Kind "binary"}}
+        <button type="button" class="toggle" data-state="{{if .Done}}done{{else if .Logged}}miss{{else}}empty{{end}}" aria-pressed="{{.Done}}" aria-label="Mark {{.H.Name}} done">
+          {{if .Done}}✓{{else if .Logged}}✗{{end}}
+        </button>
+      {{else if .Breakdown}}
+        <div class="breakdown">
+          {{range .Breakdown}}
+          <label class="bd"><span>{{.Key}}</span>
+            <span class="stepper small">
+              <button type="button" data-delta="-1" aria-label="Fewer {{.Key}}">−</button>
+              <input type="number" class="bd-value" data-key="{{.Key}}" min="0" step="1" inputmode="numeric" value="{{num .Value}}">
+              <button type="button" data-delta="1" aria-label="More {{.Key}}">+</button>
+            </span>
+          </label>
+          {{end}}
+        </div>
+        <span class="of"><b class="sum">{{num .Value}}</b> / {{num .Target}}</span>
+      {{else}}
+        <span class="stepper">
+          <button type="button" data-delta="-1" aria-label="Decrease">−</button>
+          <input type="number" class="value" min="0" step="any" inputmode="decimal" value="{{num .Value}}" aria-label="{{.H.Name}}">
+          <button type="button" data-delta="1" aria-label="Increase">+</button>
+        </span>
+        <span class="of">{{if eq .H.Kind "duration"}}<b class="hint">{{dur .Value}}</b> / {{dur .Target}}{{else}}/ {{num .Target}} {{.H.Unit}}{{end}}</span>
+      {{end}}
+      </div>
+    </div>
+    <div class="bar"><span style="width: {{pct .Progress}}%"></span></div>
+    <details class="note"{{if .Note}} open{{end}}>
+      <summary>Note</summary>
+      <input type="text" class="note-input" maxlength="500" placeholder="What did you do?" value="{{.Note}}">
+    </details>
+  </li>
+{{end}}
+</ul>
+
+<datalist id="company-names">{{range .Companies}}<option value="{{.}}">{{end}}</datalist>
+
+<section class="card tasks" data-date="{{.Date}}">
+  <h2>Tasks <span class="muted" id="tasks-count">{{.TasksDone}}/{{len .Tasks}}</span></h2>
+  <ul id="task-list">
+  {{range .Tasks}}
+    <li class="task{{if .Done}} done{{end}}" data-id="{{.ID}}">
+      <label><input type="checkbox" {{if .Done}}checked{{end}}> <span>{{.Title}}</span></label>
+      {{if ne .Date $.Date}}<small class="muted">from {{.Date}}</small>{{end}}
+      <button type="button" class="delete" aria-label="Delete task">×</button>
+    </li>
+  {{end}}
+  </ul>
+  <form id="task-form" autocomplete="off">
+    <input type="text" name="title" maxlength="200" placeholder="Add a task for {{if .IsToday}}today{{else}}this day{{end}}…" required>
+    <button type="submit">Add</button>
+  </form>
+</section>
+{{end}}

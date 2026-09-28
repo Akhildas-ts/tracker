@@ -1,0 +1,63 @@
+{{/* Icons: 18px line icons that inherit the text colour. */}}
+{{define "icon-home"}}<svg class="icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M3 11l9-7 9 7v9a1 1 0 0 1-1 1h-5v-6h-6v6H4a1 1 0 0 1-1-1z"/></svg>{{end}}
+{{define "icon-check"}}<svg class="icon" viewBox="0 0 24 24" aria-hidden="true"><rect x="3" y="3" width="18" height="18" rx="4"/><path d="M8 12l3 3 5-6"/></svg>{{end}}
+{{define "icon-briefcase"}}<svg class="icon" viewBox="0 0 24 24" aria-hidden="true"><rect x="3" y="7" width="18" height="13" rx="2"/><path d="M9 7V5a2 2 0 0 1 2-2h2a2 2 0 0 1 2 2v2M3 13h18"/></svg>{{end}}
+{{define "icon-chart"}}<svg class="icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M4 20V10M10 20V4M16 20v-7M22 20H2"/></svg>{{end}}
+{{define "icon-list"}}<svg class="icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M9 6h11M9 12h11M9 18h11M4 6h.01M4 12h.01M4 18h.01"/></svg>{{end}}
+{{define "icon-gear"}}<svg class="icon" viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.7 1.7 0 0 0 .3 1.8l.1.1a2 2 0 1 1-2.8 2.8l-.1-.1a1.7 1.7 0 0 0-1.8-.3 1.7 1.7 0 0 0-1 1.5V21a2 2 0 1 1-4 0v-.1a1.7 1.7 0 0 0-1.1-1.5 1.7 1.7 0 0 0-1.8.3l-.1.1a2 2 0 1 1-2.8-2.8l.1-.1a1.7 1.7 0 0 0 .3-1.8 1.7 1.7 0 0 0-1.5-1H3a2 2 0 1 1 0-4h.1a1.7 1.7 0 0 0 1.5-1.1 1.7 1.7 0 0 0-.3-1.8l-.1-.1a2 2 0 1 1 2.8-2.8l.1.1a1.7 1.7 0 0 0 1.8.3H9a1.7 1.7 0 0 0 1-1.5V3a2 2 0 1 1 4 0v.1a1.7 1.7 0 0 0 1 1.5 1.7 1.7 0 0 0 1.8-.3l.1-.1a2 2 0 1 1 2.8 2.8l-.1.1a1.7 1.7 0 0 0-.3 1.8V9a1.7 1.7 0 0 0 1.5 1H21a2 2 0 1 1 0 4h-.1a1.7 1.7 0 0 0-1.5 1z"/></svg>{{end}}
+
+{{/* Career section tabs, shown on narrow screens where the sidebar is hidden. */}}
+{{define "career-tabs"}}
+<nav class="section-tabs" aria-label="Career">
+  <a href="/career" {{if eq .Sub "overview"}}class="active"{{end}}>Overview</a>
+  <a href="/career/applications" {{if eq .Sub "applications"}}class="active"{{end}}>Applications</a>
+  <a href="/career/opportunities" {{if eq .Sub "opportunities"}}class="active"{{end}}>Opportunities</a>
+  <a href="/career/outreach" {{if eq .Sub "outreach"}}class="active"{{end}}>Outreach</a>
+  <a href="/career/companies" {{if eq .Sub "companies"}}class="active"{{end}}>Companies</a>
+</nav>
+{{end}}
+
+{{/* A single-series bar chart. Takes a chart value. */}}
+{{define "bars"}}
+<div class="bars{{if .Dense}} dense{{end}}" role="img" aria-label="{{.Label}}">
+  {{range .Bars}}
+  <div class="bar-col{{if .Muted}} muted{{end}}" data-tip="{{.Tip}}" tabindex="0">
+    <div class="bar-track"><span class="bar-fill" style="height: {{.Height}}%"></span></div>
+    <small>{{.Label}}</small>
+  </div>
+  {{end}}
+</div>
+{{end}}
+
+{{/* Career metric tiles. Takes a store.CareerMetrics value. */}}
+{{define "career-tiles"}}
+<div class="metric-grid">
+  <div class="metric"><span class="metric-value">{{.Applications}}</span><span class="metric-label">Applications</span></div>
+  <div class="metric"><span class="metric-value">{{.Emails}}</span><span class="metric-label">Emails</span></div>
+  <div class="metric"><span class="metric-value">{{.LinkedIn}}</span><span class="metric-label">LinkedIn messages</span></div>
+  <div class="metric"><span class="metric-value">{{.Companies}}</span><span class="metric-label">Companies researched</span></div>
+  <div class="metric"><span class="metric-value">{{.Opportunities}}</span><span class="metric-label">Opportunities researched</span></div>
+  <div class="metric"><span class="metric-value">{{.Responses}}</span><span class="metric-label">Responses</span></div>
+  <div class="metric"><span class="metric-value">{{.Interviews}}</span><span class="metric-label">Interviews</span></div>
+  <div class="metric"><span class="metric-value">{{.FollowUps}}</span><span class="metric-label">Follow-ups</span></div>
+  <div class="metric"><span class="metric-value">{{.Rejections}}</span><span class="metric-label">Rejections</span></div>
+  <div class="metric"><span class="metric-value">{{.Pending}}</span><span class="metric-label">Pending now</span></div>
+</div>
+{{end}}
+
+{{/* Recent activity list. Takes []store.Activity. */}}
+{{define "activity"}}
+{{if .}}
+<ul class="feed">
+  {{range .}}
+  <li>
+    <span class="feed-date">{{short .Date}}</span>
+    <span class="badge k-{{.Kind}}{{if eq .Kind "status"}} s-{{.Raw}}{{end}}">{{.Label}}</span>
+    <a href="{{.Link}}">{{if .Company}}{{.Company}}{{end}}{{if and .Company .Title}} · {{end}}{{.Title}}</a>
+  </li>
+  {{end}}
+</ul>
+{{else}}
+<p class="empty">No career activity yet. Log outreach or research an opportunity to see it here.</p>
+{{end}}
+{{end}}

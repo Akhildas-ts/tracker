@@ -1,0 +1,48 @@
+{{define "content"}}
+{{template "career-tabs" .}}
+<header class="page-head">
+  <h1>Companies</h1>
+  <a class="btn primary" href="/career/companies/new">+ Add company</a>
+</header>
+
+<form class="filters card" method="get">
+  <input type="search" name="q" value="{{.Search}}" placeholder="Search companies…" aria-label="Search companies">
+  <select name="country" class="auto-submit" aria-label="Country">
+    <option value="">All countries</option>
+    {{range .Countries}}<option {{if eq . $.Country}}selected{{end}}>{{.}}</option>{{end}}
+  </select>
+  <button type="submit" class="btn">Search</button>
+  {{if or .Search .Country}}<a href="/career/companies">Clear</a>{{end}}
+</form>
+
+<section class="card">
+{{if .Companies}}
+  <div class="table-wrap">
+  <table class="table stack">
+    <thead><tr><th>Company</th><th>Country</th><th class="num">Opportunities</th><th class="num">Applications</th><th class="num">Outreach</th><th class="num">Contacts</th><th>Added</th></tr></thead>
+    <tbody>
+    {{range .Companies}}
+      <tr>
+        <td class="primary"><a href="/career/companies/{{.ID}}"><b>{{.Name}}</b></a>{{if .Website}}<br><small class="muted">{{.Website}}</small>{{end}}</td>
+        <td data-label="Country">{{.Country}}</td>
+        <td class="num" data-label="Opportunities">{{.Opportunities}}</td>
+        <td class="num" data-label="Applications">{{.Applications}}</td>
+        <td class="num" data-label="Outreach">{{.Outreach}}</td>
+        <td class="num" data-label="Contacts">{{.Contacts}}</td>
+        <td data-label="Added">{{short .AddedOn}}</td>
+      </tr>
+    {{end}}
+    </tbody>
+  </table>
+  </div>
+{{else if or .Search .Country}}
+  <p class="empty">No companies match these filters.</p>
+{{else}}
+  <div class="empty">
+    <p><b>No companies yet.</b></p>
+    <p>Companies are added automatically when you log an opportunity or outreach, or you can add one directly.</p>
+    <a class="btn primary" href="/career/companies/new">+ Add company</a>
+  </div>
+{{end}}
+</section>
+{{end}}

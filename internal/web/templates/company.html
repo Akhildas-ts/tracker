@@ -1,0 +1,103 @@
+{{define "content"}}
+{{template "career-tabs" .}}
+<header class="page-head">
+  <div>
+    <p class="crumbs"><a href="/career/companies">Companies</a> /</p>
+    <h1>{{if .IsNew}}New company{{else}}{{.C.Name}}{{end}}</h1>
+    {{if not .IsNew}}<p class="muted">{{if .C.Country}}{{.C.Country}} · {{end}}added {{short .C.AddedOn}}{{if .C.Website}} · <a href="{{.C.Website}}" target="_blank" rel="noopener">website</a>{{end}}</p>{{end}}
+  </div>
+  {{if not .IsNew}}
+  <div class="head-actions">
+    <a class="btn primary" href="/career/outreach/new?company={{.C.Name}}">+ Log outreach</a>
+    <a class="btn" href="/career/opportunities/new?company={{.C.Name}}">+ Opportunity</a>
+  </div>
+  {{end}}
+</header>
+
+{{if .Errors}}<div class="card errors" role="alert">{{range .Errors}}<p>{{.}}</p>{{end}}</div>{{end}}
+
+<details class="card" {{if or .IsNew .Errors}}open{{end}}>
+  <summary><h2 class="inline">Company details</h2></summary>
+  <form class="form" method="post" action="{{if .IsNew}}/career/companies{{else}}/career/companies/{{.C.ID}}{{end}}">
+    <div class="row">
+      <label>Name <input name="name" value="{{.C.Name}}" required maxlength="120"></label>
+      <label>Country <input name="country" value="{{.C.Country}}" list="countries" maxlength="60"></label>
+    </div>
+    <div class="row">
+      <label>Website <input name="website" type="url" value="{{.C.Website}}" placeholder="https://"></label>
+      <label>Researched on <input name="added_on" type="date" value="{{.C.AddedOn}}"></label>
+    </div>
+    <label>Notes <textarea name="notes" rows="3">{{.C.Notes}}</textarea></label>
+    <div class="actions"><button class="btn primary">Save company</button>{{if .IsNew}}<a href="/career/companies">Cancel</a>{{end}}</div>
+  </form>
+  <datalist id="countries">{{range .Countries}}<option value="{{.}}">{{end}}</datalist>
+</details>
+
+{{if not .IsNew}}
+<section class="card" id="contacts">
+  <h2>Recruiters &amp; contacts</h2>
+  {{if .Contacts}}
+  <ul class="contact-list">
+    {{range .Contacts}}
+    <li>
+      <div><b>{{.Name}}</b>{{if .Role}} · {{.Role}}{{end}}
+        <small class="muted">{{if .Email}}{{.Email}}{{end}}{{if .ProfileURL}} · <a href="{{.ProfileURL}}" target="_blank" rel="noopener">profile</a>{{end}}{{if .Notes}} · {{.Notes}}{{end}}</small>
+      </div>
+      <form method="post" action="/career/contacts/{{.ID}}/delete" data-confirm="Remove {{.Name}}?">
+        <input type="hidden" name="company_id" value="{{$.C.ID}}"><button class="link-btn">Remove</button>
+      </form>
+    </li>
+    {{end}}
+  </ul>
+  {{else}}<p class="empty">No contacts yet.</p>{{end}}
+  <form class="form inline-form" method="post" action="/career/companies/{{.C.ID}}/contacts">
+    <input name="name" placeholder="Name" required aria-label="Contact name">
+    <input name="role" placeholder="Role (e.g. Recruiter)" aria-label="Role">
+    <input name="email" type="email" placeholder="Email" aria-label="Email">
+    <input name="profile_url" type="url" placeholder="LinkedIn URL" aria-label="Profile URL">
+    <button class="btn">Add contact</button>
+  </form>
+</section>
+
+<section class="card">
+  <div class="card-head"><h2>Opportunities</h2><a href="/career/opportunities/new?company={{.C.Name}}">+ Add</a></div>
+  {{if .Opportunities}}
+  <ul class="simple-list">
+    {{range .Opportunities}}
+    <li><a href="/career/opportunities/{{.ID}}">{{.Title}}</a> <span class="badge m-{{.Match}}">{{matchLabel .Match}}</span>
+      {{if .ApplicationStatus}}<span class="badge s-{{.ApplicationStatus}}">{{statusLabel .ApplicationStatus}}</span>{{end}}
+      <small class="muted">researched {{short .ResearchedOn}}</small></li>
+    {{end}}
+  </ul>
+  {{else}}<p class="empty">No opportunities researched at this company yet.</p>{{end}}
+</section>
+
+<section class="card">
+  <h2>Applications</h2>
+  {{if .Applications}}
+  <ul class="simple-list">
+    {{range .Applications}}
+    <li><a href="/career/applications/{{.ID}}">{{.Title}}</a> <span class="badge s-{{.Status}}">{{statusLabel .Status}}</span>
+      {{if .AppliedOn}}<small class="muted">applied {{short .AppliedOn}}</small>{{end}}</li>
+    {{end}}
+  </ul>
+  {{else}}<p class="empty">No applications yet.</p>{{end}}
+</section>
+
+<section class="card">
+  <div class="card-head"><h2>Outreach</h2><a href="/career/outreach/new?company={{.C.Name}}">+ Log</a></div>
+  {{if .Outreach}}
+  <ul class="simple-list">
+    {{range .Outreach}}
+    <li><small class="muted">{{short .Date}}</small> <a href="/career/outreach/{{.ID}}">{{typeLabel .Type}}</a>{{if .Contact}} to {{.Contact}}{{end}}
+      <span class="badge r-{{.Status}}">{{replyLabel .Status}}</span></li>
+    {{end}}
+  </ul>
+  {{else}}<p class="empty">No outreach to this company yet.</p>{{end}}
+</section>
+
+<form method="post" action="/career/companies/{{.C.ID}}/delete" class="danger-zone" data-confirm="Delete {{.C.Name}} and its contacts?">
+  <button class="link-btn danger">Delete company</button>
+</form>
+{{end}}
+{{end}}

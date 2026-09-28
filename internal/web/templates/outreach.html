@@ -1,0 +1,53 @@
+{{define "content"}}
+{{template "career-tabs" .}}
+<header class="page-head">
+  <div>
+    <h1>Outreach</h1>
+    <p class="muted">Every message counts toward today's Job Outreach.</p>
+  </div>
+  <a class="btn primary" href="/career/outreach/new">+ Log outreach</a>
+</header>
+
+<form class="filters card{{if or .F.Type .F.Status .F.Country}} open{{end}}" method="get">
+  <input type="search" name="q" value="{{.F.Search}}" placeholder="Search company, person, notes…" aria-label="Search outreach">
+  <button type="button" class="btn filter-toggle">Filters</button>
+  <select name="type" class="auto-submit" aria-label="Type"><option value="">All types</option>{{options .TypeOpts .F.Type}}</select>
+  <select name="status" class="auto-submit" aria-label="Status"><option value="">All statuses</option>{{options .ReplyOpts .F.Status}}</select>
+  <select name="country" class="auto-submit" aria-label="Country">
+    <option value="">All countries</option>
+    {{range .Countries}}<option {{if eq . $.F.Country}}selected{{end}}>{{.}}</option>{{end}}
+  </select>
+  <button type="submit" class="btn">Search</button>
+  {{if .Filtered}}<a href="/career/outreach">Clear</a>{{end}}
+</form>
+
+<section class="card">
+{{if .Items}}
+  <div class="table-wrap">
+  <table class="table stack">
+    <thead><tr><th>Outreach</th><th>Company</th><th>Person</th><th>Opportunity</th><th>Status</th><th>Response</th></tr></thead>
+    <tbody>
+    {{range .Items}}
+      <tr>
+        <td class="primary"><a href="/career/outreach/{{.ID}}"><b>{{typeLabel .Type}}</b> · {{short .Date}}</a></td>
+        <td data-label="Company"><span>{{if .CompanyID}}<a href="/career/companies/{{.CompanyID}}">{{.Company}}</a>{{else}}<span class="muted">—</span>{{end}}{{if .Country}}<br><small class="muted">{{.Country}}</small>{{end}}</span></td>
+        <td data-label="Person">{{.Contact}}</td>
+        <td data-label="Opportunity">{{if .OpportunityID}}<a href="/career/opportunities/{{.OpportunityID}}">{{.Opportunity}}</a>{{end}}</td>
+        <td data-label="Status"><span class="badge r-{{.Status}}">{{replyLabel .Status}}</span></td>
+        <td class="clip" data-label="Response">{{.Response}}</td>
+      </tr>
+    {{end}}
+    </tbody>
+  </table>
+  </div>
+{{else if .Filtered}}
+  <p class="empty">No outreach matches these filters.</p>
+{{else}}
+  <div class="empty">
+    <p><b>No outreach logged yet.</b></p>
+    <p>Log emails, LinkedIn messages and referral requests here, or with the quick buttons on the Today page.</p>
+    <a class="btn primary" href="/career/outreach/new">+ Log outreach</a>
+  </div>
+{{end}}
+</section>
+{{end}}

@@ -1,0 +1,147 @@
+{{define "content"}}
+<header class="page-head">
+  <h1>Analytics</h1>
+  <nav class="segmented" aria-label="Period">
+    <a href="{{.WeekURL}}" {{if eq .Period "week"}}class="active" aria-current="page"{{end}}>Week</a>
+    <a href="{{.MonthURL}}" {{if eq .Period "month"}}class="active" aria-current="page"{{end}}>Month</a>
+  </nav>
+</header>
+
+<div class="pager">
+  <a href="{{.PrevURL}}" aria-label="Previous {{.Period}}">←</a>
+  <h2 class="pager-title">{{.Label}}</h2>
+  {{if .NextURL}}<a href="{{.NextURL}}" aria-label="Next {{.Period}}">→</a>{{else}}<span class="disabled">→</span>{{end}}
+</div>
+
+<!-- Personal -->
+<h2 class="section-title">Personal</h2>
+<section class="card">
+  <div class="metric-grid four">
+    <div class="metric"><span class="metric-value">{{pct .Overall}}%</span><span class="metric-label">{{if eq .Period "week"}}weekly{{else}}monthly{{end}} completion</span></div>
+    <div class="metric"><span class="metric-value">{{.DoneDays}}</span><span class="metric-label">habit-days on target</span></div>
+    <div class="metric"><span class="metric-value">{{.MissedDays}}</span><span class="metric-label">habit-days missed</span></div>
+    <div class="metric"><span class="metric-value">{{.TasksDone}}/{{.TasksTotal}}</span><span class="metric-label">tasks done</span></div>
+  </div>
+</section>
+
+<section class="card">
+  <h3>Daily completion</h3>
+  {{template "bars" .ScoreChart}}
+</section>
+
+{{if eq .Period "week"}}
+<section class="card">
+  <h3>Day by day</h3>
+  <div class="table-wrap">
+  <table class="grid">
+    <thead><tr><th></th>{{range .Days}}<th{{if .Today}} class="is-today"{{end}}>{{.Name}}<small>{{.Num}}</small></th>{{end}}<th>%</th></tr></thead>
+    <tbody>
+    {{range .Rows}}
+      <tr><th><span class="em">{{.H.Emoji}}</span>{{.H.Name}}</th>{{range .Cells}}<td class="c-{{.Class}}">{{.Text}}</td>{{end}}<td class="pct">{{pct .Sum.Progress}}%</td></tr>
+    {{end}}
+    </tbody>
+    <tfoot><tr><th>Day score</th>{{range .DayScores}}<td>{{if .}}{{pct .Progress}}%{{end}}</td>{{end}}<td></td></tr></tfoot>
+  </table>
+  </div>
+</section>
+{{else}}
+<section class="card">
+  <h3>Calendar</h3>
+  <table class="heatmap">
+    <thead><tr><th>Mon</th><th>Tue</th><th>Wed</th><th>Thu</th><th>Fri</th><th>Sat</th><th>Sun</th></tr></thead>
+    <tbody>
+    {{range .Weeks}}<tr>{{range .}}{{if .Blank}}<td class="blank"></td>{{else}}<td class="l{{.Level}}{{if .Today}} is-today{{end}}" title="{{.Title}}">{{.Day}}</td>{{end}}{{end}}</tr>
+    {{end}}
+    </tbody>
+  </table>
+  <p class="legend muted">Less <i class="l0"></i><i class="l1"></i><i class="l2"></i><i class="l3"></i><i class="l4"></i> More</p>
+</section>
+{{end}}
+
+<section class="card">
+  <h3>Habits</h3>
+  <div class="table-wrap">
+  <table class="table stack">
+    <thead><tr><th>Habit</th><th>Days on target</th><th>Completion</th><th>Total</th><th>Current streak</th><th>Best streak</th></tr></thead>
+    <tbody>
+    {{range .Rows}}
+      <tr>
+        <td class="primary"><span class="em">{{.H.Emoji}}</span>{{.H.Name}}</td>
+        <td data-label="Days on target">{{.Sum.Done}}/{{.Sum.Scheduled}}</td>
+        <td data-label="Completion"><span class="mini-bar"><span style="width: {{pct .Sum.Progress}}%"></span></span> {{pct .Sum.Progress}}%</td>
+        <td data-label="Total">{{.TotalLabel}}</td>
+        <td data-label="Current streak">🔥 {{.Streak}}</td>
+        <td data-label="Best streak">{{.Best}}</td>
+      </tr>
+    {{end}}
+    </tbody>
+  </table>
+  </div>
+</section>
+
+<h2 class="section-title">Activity totals</h2>
+<div class="totals-grid">
+  {{range .Totals}}
+  <div class="card total-card">
+    <span class="muted"><span class="em">{{.H.Emoji}}</span>{{.H.Name}}</span>
+    <span class="metric-value">{{.Total}}</span>
+    <small class="muted">{{.Sub}}</small>
+  </div>
+  {{end}}
+</div>
+
+<section class="card">
+  <h3>Habit trends <span class="muted">· weekly completion, last 8 weeks · right: average</span></h3>
+  <div class="trends">
+    {{range .Trends}}
+    <div class="trend-row">
+      <span class="trend-name"><span class="em">{{.H.Emoji}}</span>{{.H.Name}}</span>
+      {{template "bars" .Chart}}
+      <span class="trend-last" title="Average over the tracked weeks">{{pct .Average}}%</span>
+    </div>
+    {{end}}
+  </div>
+</section>
+
+{{if careerOn}}
+<!-- Career -->
+<div class="section-head">
+  <h2 class="section-title">Career</h2>
+  <form method="get" class="inline-filter">
+    <input type="hidden" name="period" value="{{.Period}}">
+    {{if eq .Period "week"}}<input type="hidden" name="start" value="{{.Start}}">{{else}}<input type="hidden" name="m" value="{{.Start}}">{{end}}
+    <label>Country
+      <select name="country" class="auto-submit">
+        <option value="">All countries</option>
+        {{range .Countries}}<option {{if eq . $.Country}}selected{{end}}>{{.}}</option>{{end}}
+      </select>
+    </label>
+    <noscript><button class="btn small">Apply</button></noscript>
+  </form>
+</div>
+
+<section class="card">
+  {{template "career-tiles" .Career}}
+  {{if .Country}}<p class="muted small">Showing {{.Country}} only. Outreach without a company or country isn't included.</p>{{end}}
+</section>
+
+<section class="card">
+  <h3>Job outreach per day <span class="muted">· messages + applications</span></h3>
+  {{template "bars" .OutreachChart}}
+</section>
+
+<section class="card">
+  <h3>Last 8 weeks</h3>
+  <div class="table-wrap">
+  <table class="table numeric">
+    <thead><tr><th>Week of</th><th>Applications</th><th>Emails</th><th>LinkedIn</th><th>Companies</th><th>Opportunities</th><th>Responses</th><th>Interviews</th><th>Follow-ups</th><th>Rejections</th></tr></thead>
+    <tbody>
+    {{range .CareerWeeks}}
+      <tr><td>{{.Label}}</td><td>{{.M.Applications}}</td><td>{{.M.Emails}}</td><td>{{.M.LinkedIn}}</td><td>{{.M.Companies}}</td><td>{{.M.Opportunities}}</td><td>{{.M.Responses}}</td><td>{{.M.Interviews}}</td><td>{{.M.FollowUps}}</td><td>{{.M.Rejections}}</td></tr>
+    {{end}}
+    </tbody>
+  </table>
+  </div>
+</section>
+{{end}}
+{{end}}

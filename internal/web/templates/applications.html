@@ -1,0 +1,69 @@
+{{define "content"}}
+{{template "career-tabs" .}}
+<header class="page-head">
+  <div>
+    <h1>Applications</h1>
+    <p class="muted">Change a status right in the list. Every change is recorded with its date.</p>
+  </div>
+  <a class="btn primary" href="/career/applications/new">+ New application</a>
+</header>
+
+{{if .Pipeline}}
+<nav class="chips" aria-label="Filter by status">
+  <a href="/career/applications" class="chip-link {{if and (not .F.Status) (not .F.Pending)}}active{{end}}">All</a>
+  <a href="/career/applications?pending=1" class="chip-link {{if .F.Pending}}active{{end}}">Pending</a>
+  {{range .Pipeline}}<a href="/career/applications?status={{.Value}}" class="chip-link {{if eq .Value $.F.Status}}active{{end}}">{{.Label}} <b>{{.Count}}</b></a>{{end}}
+</nav>
+{{end}}
+
+<form class="filters card{{if or .F.Status .F.Country .F.Pending}} open{{end}}" method="get">
+  <input type="search" name="q" value="{{.F.Search}}" placeholder="Search role, company, source…" aria-label="Search applications">
+  <button type="button" class="btn filter-toggle">Filters</button>
+  <select name="status" class="auto-submit" aria-label="Status"><option value="">All statuses</option>{{options .StatusOpts .F.Status}}</select>
+  <select name="country" class="auto-submit" aria-label="Country">
+    <option value="">All countries</option>
+    {{range .Countries}}<option {{if eq . $.F.Country}}selected{{end}}>{{.}}</option>{{end}}
+  </select>
+  <label class="check"><input type="checkbox" name="pending" value="1" class="auto-submit" {{if .F.Pending}}checked{{end}}> Pending only</label>
+  <button type="submit" class="btn">Search</button>
+  {{if .Filtered}}<a href="/career/applications">Clear</a>{{end}}
+</form>
+
+<section class="card">
+{{if .Applications}}
+  <div class="table-wrap">
+  <table class="table stack">
+    <thead><tr><th>Role</th><th>Country</th><th>Status</th><th>Applied</th><th>Waiting</th><th>Source</th><th>Last change</th></tr></thead>
+    <tbody>
+    {{range .Applications}}
+      <tr>
+        <td class="primary"><a href="/career/applications/{{.ID}}"><b>{{.Company}}</b> · {{.Title}}</a></td>
+        <td data-label="Country">{{.Country}}</td>
+        <td data-label="Status">
+          <form method="post" action="/career/applications/{{.ID}}/status" class="status-form">
+            <input type="hidden" name="back" value="/career/applications">
+            <select name="status" class="auto-submit status-select s-{{.Status}}" aria-label="Status for {{.Title}}">{{options $.StatusOpts .Status}}</select>
+            <noscript><button class="btn small">Save</button></noscript>
+          </form>
+        </td>
+        <td data-label="Applied">{{if .AppliedOn}}{{short .AppliedOn}}{{else}}<span class="muted">not sent</span>{{end}}</td>
+        <td data-label="Waiting">{{if and .AppliedOn (or (eq .Status "applied") (eq .Status "follow_up") (eq .Status "response") (eq .Status "interview"))}}{{since .AppliedOn}}d{{else}}<span class="muted">—</span>{{end}}</td>
+        <td data-label="Source">{{.Source}}</td>
+        <td data-label="Last change">{{short .LastChange}}</td>
+      </tr>
+    {{end}}
+    </tbody>
+  </table>
+  </div>
+{{else if .Filtered}}
+  <p class="empty">No applications match these filters.</p>
+{{else}}
+  <div class="empty">
+    <p><b>No applications yet.</b></p>
+    <p>An application belongs to an opportunity. Add the opportunity first, then track your application to it.</p>
+    <a class="btn primary" href="/career/applications/new">+ New application</a>
+    <a class="btn" href="/career/opportunities/new">+ Add opportunity</a>
+  </div>
+{{end}}
+</section>
+{{end}}

@@ -1,0 +1,53 @@
+{{define "content"}}
+<header class="page-head"><h1>Settings</h1></header>
+
+{{if .Message}}<div class="card notice" role="status">{{.Message}}</div>{{end}}
+
+<section class="card">
+  <h2>Preferences</h2>
+  <form class="form" method="post" action="/settings">
+    <label>Display name <small class="muted">(used in greetings)</small>
+      <input name="display_name" value="{{.Name}}" maxlength="60" placeholder="Your name">
+    </label>
+    <label class="check-line"><input type="checkbox" name="career" value="1" {{if careerOn}}checked{{end}}>
+      <span><b>Show job-search tracking</b> (Career pages, job-search cards on the Dashboard and in Analytics). Turning it off hides them; nothing is deleted.</span>
+    </label>
+    <label>Main skill <small class="muted">(labels how relevant a role is to you, e.g. Go, React)</small>
+      <input name="skill" value="{{with profileSkill}}{{.}}{{end}}" maxlength="40" placeholder="e.g. Go">
+    </label>
+    <div class="actions"><button class="btn primary">Save</button></div>
+  </form>
+</section>
+
+<section class="card">
+  <h2>Job Outreach</h2>
+  {{if .OutreachHabit.ID}}
+  <p><b><span class="em">{{.OutreachHabit.Emoji}}</span>{{.OutreachHabit.Name}}</b> is counted automatically from Career. Every outreach message (emails, LinkedIn messages,
+    referral requests, follow-ups, other) plus every application submitted counts on the day it happened.</p>
+  <p class="muted">{{if .LinkedSince}}Days before {{.LinkedSince}} keep the value that was typed in by hand before Career tracking existed.{{else}}Every day is counted from Career, including outreach you record for past days.{{end}}
+    To link a different habit, edit it on the <a href="/habits">Habits</a> page and set its source to Career.</p>
+  {{else}}
+  <p class="muted">No habit is linked to career activity. Edit a count habit on the <a href="/habits">Habits</a> page and set its source to Career.</p>
+  {{end}}
+</section>
+
+<section class="card">
+  <h2>Your data</h2>
+  <dl class="kv wide">
+    <dt>Database file</dt><dd><code>{{.DBPath}}</code></dd>
+    <dt>Backups folder</dt><dd><code>{{.BackupDir}}</code></dd>
+  </dl>
+  <p class="muted">Every change is saved to the database file immediately. A backup is also made automatically each day the app starts, and the newest 30 are kept.
+    To restore one, stop the app and copy the backup over the database file.</p>
+  <div class="actions">
+    <form method="post" action="/settings/backup"><button class="btn">Back up now</button></form>
+    <a class="btn" href="/settings/export">Export all data (JSON)</a>
+  </div>
+  {{if .Backups}}
+  <h3>Recent backups</h3>
+  <ul class="simple-list mono">
+    {{range .Backups}}<li>{{.Name}} <small class="muted">{{.Size}}</small></li>{{end}}
+  </ul>
+  {{end}}
+</section>
+{{end}}

@@ -1,0 +1,105 @@
+{{define "content"}}
+<header class="page-head">
+  <div>
+    <p class="muted">{{.DateLabel}}</p>
+    <h1>{{.Greeting}}{{with profile}}, {{.}}{{end}} 👋</h1>
+  </div>
+  <div class="head-actions">
+    <a class="btn primary" href="/today">Update today</a>
+    {{if careerOn}}<a class="btn" href="/career/outreach/new">+ Log outreach</a>{{end}}
+  </div>
+</header>
+
+<div class="hero-grid{{if not careerOn}} single{{end}}">
+  <section class="card hero">
+    <h2>How am I doing today?</h2>
+    <div class="ring-row">
+      <div class="ring" style="--p: {{pct .Score.Progress}}" role="img" aria-label="{{pct .Score.Progress}}% of today's habits">
+        <span>{{pct .Score.Progress}}%</span>
+      </div>
+      <div>
+        <p class="big-line"><b>{{.Score.Completed}}</b> of {{.Score.Total}} habits complete</p>
+        <p class="muted">This week so far: <b>{{pct .WeekProgress}}%</b></p>
+        {{if .Todo}}
+        <p class="muted small">Still to do: {{range $i, $t := .Todo}}{{if $i}}, {{end}}{{$t}}{{end}}</p>
+        {{else if .Score.Total}}
+        <p class="good small">Every habit done for today.</p>
+        {{end}}
+      </div>
+    </div>
+  </section>
+
+  {{if careerOn}}
+  <section class="card hero">
+    <h2>Job search this week</h2>
+    <div class="ring-row">
+      <div class="ring accent" style="--p: {{.OutreachPct}}" role="img" aria-label="Today's outreach {{.Outreach.Total}}">
+        <span>{{.Outreach.Total}}{{if .Target}}<small>/{{num .Target}}</small>{{end}}</span>
+      </div>
+      <div>
+        <p class="big-line"><b>{{.Outreach.Total}}</b> outreach today</p>
+        <p class="muted">{{.Career.Applications}} applications · {{.Career.Messages}} messages this week</p>
+        <p class="muted small">{{.Career.Pending}} applications pending · {{.Career.Interviews}} interviews this week</p>
+      </div>
+    </div>
+  </section>
+  {{end}}
+</div>
+
+<div class="grid-2">
+  <section class="card">
+    <div class="card-head"><h2>Today's habits</h2><a href="/today">Update →</a></div>
+    {{if not .Habits}}<div class="empty"><p>No habits yet.</p><a class="btn primary" href="/habits/new">+ Add your first habit</a></div>{{end}}
+    <ul class="habit-summary">
+      {{range .Habits}}
+      <li class="{{if .Done}}done{{end}}{{if not .Scheduled}} rest{{end}}">
+        <span class="hs-name"><span class="em">{{.H.Emoji}}</span>{{.H.Name}}</span>
+        <span class="hs-value">{{if not .Scheduled}}rest day{{else}}{{.Value}}{{end}}</span>
+        <span class="hs-bar"><span style="width: {{pct .Progress}}%"></span></span>
+        <span class="hs-streak" title="Current streak">🔥 {{.Streak}}</span>
+      </li>
+      {{end}}
+    </ul>
+  </section>
+
+  <section class="card">
+    <div class="card-head"><h2>Open tasks</h2><a href="/today">Add →</a></div>
+    {{if .OpenTasks}}
+    <ul class="simple-list">
+      {{range .OpenTasks}}<li>☐ {{.Title}}</li>{{end}}
+    </ul>
+    {{else}}
+    <p class="empty">No open tasks.</p>
+    {{end}}
+  </section>
+</div>
+
+{{if careerOn}}
+<section class="card">
+  <div class="card-head"><h2>Career · this week <span class="muted">{{.WeekLabel}}</span></h2><a href="/career">Career →</a></div>
+  {{template "career-tiles" .Career}}
+</section>
+
+<div class="grid-2">
+  <section class="card">
+    <div class="card-head"><h2>Pending applications</h2><a href="/career/applications?pending=1">All →</a></div>
+    {{if .Pending}}
+    <ul class="simple-list">
+      {{range .Pending}}
+      <li><a href="/career/applications/{{.ID}}"><b>{{.Company}}</b> · {{.Title}}</a>
+        <span class="badge s-{{.Status}}">{{statusLabel .Status}}</span>
+        <small class="muted">{{since .AppliedOn}}d waiting</small></li>
+      {{end}}
+    </ul>
+    {{else}}
+    <p class="empty">Nothing pending.</p>
+    {{end}}
+  </section>
+
+  <section class="card">
+    <div class="card-head"><h2>Recent activity</h2><a href="/career">More →</a></div>
+    {{template "activity" .Activity}}
+  </section>
+</div>
+{{end}}
+{{end}}

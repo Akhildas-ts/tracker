@@ -1,0 +1,47 @@
+{{define "content"}}
+<header class="page-head">
+  <div>
+    <h1>Welcome 👋</h1>
+    <p class="muted">Set up your tracker. Everything here can be changed later in Settings and Habits.</p>
+  </div>
+</header>
+
+<form class="form" method="post" action="/welcome">
+  <section class="card">
+    <h2>About you</h2>
+    <label>Your name <small class="muted">(optional, used in greetings)</small>
+      <input name="display_name" maxlength="60" placeholder="e.g. Alex" autofocus>
+    </label>
+    <label class="check-line"><input type="checkbox" name="career" value="1" id="career-toggle" checked>
+      <span><b>I'm looking for a job.</b> Show Career tracking: companies, opportunities, applications, outreach.</span>
+    </label>
+    <label id="skill-field">Your main skill <small class="muted">(optional, shown when you rate how relevant a role is)</small>
+      <input name="skill" maxlength="40" placeholder="e.g. Go, React, Data science">
+    </label>
+  </section>
+
+  <section class="card">
+    <h2>Pick some starter habits</h2>
+    <p class="muted">These are suggestions. You can change targets, days and names, delete them, or add your own afterwards.</p>
+    {{range .Groups}}
+    <fieldset class="template-group" data-group="{{.Name}}">
+      <legend>{{.Name}}</legend>
+      <div class="template-grid">
+        {{range .Templates}}
+        <label class="template-card">
+          <input type="checkbox" name="habit" value="{{.Key}}">
+          <span class="template-emoji">{{.Habit.Emoji}}</span>
+          <span><b>{{.Habit.Name}}</b><small class="muted">{{target .Habit}}{{if .Habit.Linked}} · counted from Career{{end}}</small></span>
+        </label>
+        {{end}}
+      </div>
+    </fieldset>
+    {{end}}
+  </section>
+
+  <div class="actions">
+    <button class="btn primary">Start tracking</button>
+    <span class="muted small">Picked nothing? That's fine: you'll get an empty list and can add your own habits.</span>
+  </div>
+</form>
+{{end}}

@@ -1,0 +1,45 @@
+{{define "content"}}
+<header class="page-head">
+  <div>
+    <h1>Habits</h1>
+    <p class="muted">Add, change, reorder or remove the habits you track. Archive keeps history; Delete removes it.</p>
+  </div>
+  <a class="btn" href="/habits/new">+ Add habit</a>
+</header>
+
+<ul class="card habit-list">
+{{range $i, $h := .Active}}
+  <li>
+    <div>
+      <b><span class="em">{{.Emoji}}</span>{{.Name}}</b>
+      <small class="muted">{{target .}} · {{schedule .ScheduleDays}}{{if .Linked}} · counted from Career{{end}}{{if .ReminderTime}} · ⏰ {{.ReminderTime}}{{end}}</small>
+    </div>
+    <div class="actions">
+      <form method="post" action="/habits/{{.ID}}/move"><input type="hidden" name="dir" value="up"><button aria-label="Move up">↑</button></form>
+      <form method="post" action="/habits/{{.ID}}/move"><input type="hidden" name="dir" value="down"><button aria-label="Move down">↓</button></form>
+      <a class="btn small" href="/habits/{{.ID}}/edit">Edit</a>
+      <form method="post" action="/habits/{{.ID}}/archive"><button title="Hide from tracking but keep its history">Archive</button></form>
+      <form method="post" action="/habits/{{.ID}}/delete" data-confirm="Delete “{{.Name}}” and all of its history? This can't be undone."><button class="danger-btn">Delete</button></form>
+    </div>
+  </li>
+{{else}}
+  <li class="empty">No habits yet. <a href="/habits/new">Add your first habit</a> — anything you want to do daily or on certain days.</li>
+{{end}}
+</ul>
+
+{{if .Archived}}
+<h2>Archived</h2>
+<p class="muted">Archived habits are hidden from tracking and reports. Their history is kept.</p>
+<ul class="card habit-list">
+{{range .Archived}}
+  <li>
+    <div><b><span class="em">{{.Emoji}}</span>{{.Name}}</b></div>
+    <div class="actions">
+      <form method="post" action="/habits/{{.ID}}/restore"><button>Restore</button></form>
+      <form method="post" action="/habits/{{.ID}}/delete" data-confirm="Delete “{{.Name}}” and all of its history? This can't be undone."><button class="danger-btn">Delete</button></form>
+    </div>
+  </li>
+{{end}}
+</ul>
+{{end}}
+{{end}}

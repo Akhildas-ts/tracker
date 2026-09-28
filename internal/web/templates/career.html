@@ -1,0 +1,83 @@
+{{define "content"}}
+{{template "career-tabs" .}}
+<header class="page-head">
+  <div>
+    <h1>Career overview</h1>
+    <p class="muted">This week · {{.WeekLabel}}</p>
+  </div>
+  <div class="head-actions">
+    <a class="btn primary" href="/career/outreach/new">+ Log outreach</a>
+    <a class="btn" href="/career/opportunities/new">+ Opportunity</a>
+    <a class="btn" href="/career/applications/new">+ Application</a>
+  </div>
+</header>
+
+<section class="card">
+  <div class="card-head">
+    <h2>Today's outreach</h2>
+    <a href="/today">Open Today →</a>
+  </div>
+  <div class="outreach-today">
+    <span class="big">{{.Outreach.Total}}{{if .Target}}<span class="muted"> / {{num .Target}}</span>{{end}}</span>
+    <span class="muted">{{.Outreach.Emails}} emails · {{.Outreach.LinkedIn}} LinkedIn · {{.Outreach.Other}} other · {{.Outreach.Applications}} applications</span>
+  </div>
+</section>
+
+<section class="card">
+  <h2>This week</h2>
+  {{template "career-tiles" .Week}}
+</section>
+
+<div class="grid-2">
+  <section class="card">
+    <div class="card-head"><h2>Pipeline</h2><a href="/career/applications">All applications →</a></div>
+    <ul class="pipeline">
+      {{range .Pipeline}}
+      <li><a href="/career/applications?status={{.Value}}"><span class="badge s-{{.Value}}">{{.Label}}</span><b>{{.Count}}</b></a></li>
+      {{end}}
+    </ul>
+  </section>
+
+  <section class="card">
+    <div class="card-head"><h2>This month</h2><a href="/analytics?period=month">Analytics →</a></div>
+    <dl class="kv">
+      <dt>Applications</dt><dd>{{.Month.Applications}}</dd>
+      <dt>Outreach messages</dt><dd>{{.Month.Messages}}</dd>
+      <dt>Companies researched</dt><dd>{{.Month.Companies}}</dd>
+      <dt>Opportunities researched</dt><dd>{{.Month.Opportunities}}</dd>
+      <dt>Responses</dt><dd>{{.Month.Responses}}</dd>
+      <dt>Interviews</dt><dd>{{.Month.Interviews}}</dd>
+      <dt>Offers</dt><dd>{{.Month.Offers}}</dd>
+    </dl>
+  </section>
+</div>
+
+<section class="card">
+  <div class="card-head"><h2>Pending applications</h2><a href="/career/applications?pending=1">View all →</a></div>
+  {{if .Pending}}
+  <div class="table-wrap">
+  <table class="table stack">
+    <thead><tr><th>Role</th><th>Country</th><th>Status</th><th>Applied</th><th>Waiting</th></tr></thead>
+    <tbody>
+    {{range .Pending}}
+      <tr>
+        <td class="primary"><a href="/career/applications/{{.ID}}"><b>{{.Company}}</b> · {{.Title}}</a></td>
+        <td data-label="Country">{{.Country}}</td>
+        <td data-label="Status"><span class="badge s-{{.Status}}">{{statusLabel .Status}}</span></td>
+        <td data-label="Applied">{{short .AppliedOn}}</td>
+        <td data-label="Waiting">{{since .AppliedOn}} days</td>
+      </tr>
+    {{end}}
+    </tbody>
+  </table>
+  </div>
+  {{else}}
+  <p class="empty">No applications waiting on a response.</p>
+  {{end}}
+</section>
+
+<section class="card">
+  <h2>Recent activity</h2>
+  {{template "activity" .Activity}}
+</section>
+{{end}}

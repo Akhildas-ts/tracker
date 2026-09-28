@@ -1,0 +1,61 @@
+{{define "content"}}
+{{template "career-tabs" .}}
+<header class="page-head">
+  <div>
+    <p class="crumbs"><a href="/career/opportunities">Opportunities</a> /</p>
+    <h1>{{if .IsNew}}New opportunity{{else}}{{.O.Title}}{{end}}</h1>
+  </div>
+  {{if not .IsNew}}
+  <div class="head-actions">
+    {{if .O.ApplicationID}}<a class="btn" href="/career/applications/{{.O.ApplicationID}}">View application</a>
+    {{else}}<a class="btn primary" href="/career/applications/new?opportunity={{.O.ID}}">Track application</a>{{end}}
+    <a class="btn" href="/career/outreach/new?opportunity={{.O.ID}}">+ Log outreach</a>
+  </div>
+  {{end}}
+</header>
+
+{{if .Errors}}<div class="card errors" role="alert">{{range .Errors}}<p>{{.}}</p>{{end}}</div>{{end}}
+
+<form class="card form" method="post" action="{{if .IsNew}}/career/opportunities{{else}}/career/opportunities/{{.O.ID}}{{end}}">
+  <div class="row">
+    <label>Company <input name="company" value="{{.CompanyName}}" list="companies" required maxlength="120" placeholder="Type to pick or add"></label>
+    <label>Job title <input name="title" value="{{.O.Title}}" required maxlength="160"></label>
+  </div>
+  <div class="row">
+    <label>Country <input name="country" value="{{.O.Country}}" list="countries" maxlength="60"></label>
+    <label>Location <input name="location" value="{{.O.Location}}" maxlength="120" placeholder="City / region"></label>
+  </div>
+
+  <div class="row">
+    <label>{{skill}} relevance <select name="go">{{options .GoOpts .O.GoRelevance}}</select></label>
+    <label>Remote <select name="remote">{{options .RemoteOpts .O.Remote}}</select></label>
+  </div>
+  <div class="row">
+    <label>Relocation support <select name="relocation">{{options .YesNo .O.Relocation}}</select></label>
+    <label>Visa sponsorship <select name="visa">{{options .YesNo .O.Visa}}</select></label>
+  </div>
+  <div class="row">
+    <label>Profile match <select name="match">{{options .MatchOpts .O.Match}}</select></label>
+    <label>Experience required <input name="experience" value="{{.O.Experience}}" maxlength="120" placeholder="e.g. 4+ years backend"></label>
+  </div>
+  <label>Skills required <textarea name="skills" rows="2" placeholder="Go, Kubernetes, PostgreSQL…">{{.O.Skills}}</textarea></label>
+  <div class="row">
+    <label>Job URL <input name="url" type="url" value="{{.O.URL}}" placeholder="https://"></label>
+    <label>Researched on <input name="researched_on" type="date" value="{{.O.ResearchedOn}}"></label>
+  </div>
+  <label>Notes <textarea name="notes" rows="3">{{.O.Notes}}</textarea></label>
+
+  <div class="actions">
+    <button class="btn primary">Save opportunity</button>
+    <a href="/career/opportunities">Cancel</a>
+  </div>
+</form>
+<datalist id="companies">{{range .CompanyNames}}<option value="{{.}}">{{end}}</datalist>
+<datalist id="countries">{{range .Countries}}<option value="{{.}}">{{end}}</datalist>
+
+{{if not .IsNew}}
+<form method="post" action="/career/opportunities/{{.O.ID}}/delete" class="danger-zone" data-confirm="Delete this opportunity?">
+  <button class="link-btn danger">Delete opportunity</button>
+</form>
+{{end}}
+{{end}}

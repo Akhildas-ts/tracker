@@ -1,0 +1,76 @@
+{{define "content"}}
+{{template "career-tabs" .}}
+<header class="page-head">
+  <div>
+    <p class="crumbs"><a href="/career/applications">Applications</a> /</p>
+    <h1>{{if .IsNew}}New application{{else}}{{.A.Company}} · {{.A.Title}}{{end}}</h1>
+  </div>
+  {{if not .IsNew}}
+  <div class="head-actions">
+    <a class="btn" href="/career/opportunities/{{.A.OpportunityID}}">View opportunity</a>
+    <a class="btn" href="/career/outreach/new?opportunity={{.A.OpportunityID}}&type=follow_up">+ Log follow-up</a>
+  </div>
+  {{end}}
+</header>
+
+{{if .Errors}}<div class="card errors" role="alert">{{range .Errors}}<p>{{.}}</p>{{end}}</div>{{end}}
+
+<form class="card form" method="post" action="{{if .IsNew}}/career/applications{{else}}/career/applications/{{.A.ID}}{{end}}">
+  <fieldset>
+    <legend>Role</legend>
+    {{if .Opportunities}}
+    <label class="sr-label">Researched role
+      <select name="opportunity_id" id="opportunity-select">
+        <option value="0">{{if .IsNew}}New role — enter it below{{else}}Choose…{{end}}</option>
+        {{range .Opportunities}}<option value="{{.ID}}" {{if eq .ID $.A.OpportunityID}}selected{{end}}>{{.Company}} · {{.Title}}{{if .Country}} ({{.Country}}){{end}}</option>{{end}}
+      </select>
+    </label>
+    {{else}}<input type="hidden" name="opportunity_id" value="0">{{end}}
+    {{if .IsNew}}
+    <div class="row new-role" id="new-role">
+      <label>Company <input name="new_company" value="{{.NewCompany}}" list="companies" maxlength="120" placeholder="Type to pick or add"></label>
+      <label>Job title <input name="new_title" value="{{.NewTitle}}" maxlength="160"></label>
+      <label>Country <input name="new_country" value="{{.NewCountry}}" list="countries" maxlength="60"></label>
+    </div>
+    <p class="hint-text">A new role is also saved under Opportunities. You can add its details later.</p>
+    {{end}}
+  </fieldset>
+
+  <div class="row">
+    <label>Status <select name="status" id="status-select">{{options .StatusOpts .A.Status}}</select></label>
+    <label>Application date <input name="applied_on" type="date" value="{{.A.AppliedOn}}" max="{{.Today}}"></label>
+    <label>Source <input name="source" value="{{.A.Source}}" list="sources" maxlength="80" placeholder="Company website, LinkedIn…"></label>
+  </div>
+  <p class="hint-text">Only sent applications count toward Job Outreach, on their application date. Saved, Researching and Ready to Apply don't count.</p>
+  <details class="more"{{if not .IsNew}} open{{end}}>
+    <summary>Status changed on another day?</summary>
+    <label>Status date <input name="status_date" type="date" value="{{.Today}}" max="{{.Today}}">
+      <small class="muted">Use this if you're recording a status change late, e.g. an interview that happened last week.</small></label>
+  </details>
+  <label>Notes <textarea name="notes" rows="3">{{.A.Notes}}</textarea></label>
+  <div class="actions">
+    <button class="btn primary">Save application</button>
+    <a href="/career/applications">Cancel</a>
+  </div>
+</form>
+<datalist id="sources">
+  <option value="Company website"><option value="LinkedIn"><option value="Job board"><option value="Recruiter"><option value="Referral"><option value="Email">
+</datalist>
+<datalist id="companies">{{range .CompanyNames}}<option value="{{.}}">{{end}}</datalist>
+<datalist id="countries">{{range .Countries}}<option value="{{.}}">{{end}}</datalist>
+
+{{if .A.History}}
+<section class="card">
+  <h2>Status history</h2>
+  <ol class="timeline">
+    {{range .A.History}}<li><span class="feed-date">{{short .Date}}</span> <span class="badge s-{{.Status}}">{{statusLabel .Status}}</span></li>{{end}}
+  </ol>
+</section>
+{{end}}
+
+{{if not .IsNew}}
+<form method="post" action="/career/applications/{{.A.ID}}/delete" class="danger-zone" data-confirm="Delete this application and its status history?">
+  <button class="link-btn danger">Delete application</button>
+</form>
+{{end}}
+{{end}}

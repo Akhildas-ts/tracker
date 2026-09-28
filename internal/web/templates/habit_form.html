@@ -1,0 +1,66 @@
+{{define "content"}}
+<header class="page-head"><h1>{{.Title}}</h1></header>
+
+{{if .Errors}}<div class="card errors">{{range .Errors}}<p>{{.}}</p>{{end}}</div>{{end}}
+
+<form class="card form" method="post" action="{{if .IsNew}}/habits{{else}}/habits/{{.H.ID}}{{end}}">
+  <div class="row">
+    <label class="narrow">Emoji <input name="emoji" id="emoji-input" value="{{.H.Emoji}}" maxlength="8"></label>
+    <label>Name <input name="name" value="{{.H.Name}}" required maxlength="80"></label>
+  </div>
+
+  <div class="emoji-picks" aria-label="Pick an emoji">
+    {{range $e := emojiPicks}}<button type="button" data-emoji="{{$e}}">{{$e}}</button>{{end}}
+  </div>
+
+  <label>Type
+    <select name="kind" id="kind">
+      <option value="binary" {{if eq .H.Kind "binary"}}selected{{end}}>Yes / No (e.g. No Smoking, Gym)</option>
+      <option value="duration" {{if eq .H.Kind "duration"}}selected{{end}}>Duration in minutes (e.g. Learning)</option>
+      <option value="count" {{if eq .H.Kind "count"}}selected{{end}}>Count (e.g. problems, emails)</option>
+    </select>
+  </label>
+
+  <div class="row measurable">
+    <label>Daily target <input name="target" type="number" min="0" step="any" value="{{num .H.Target}}"></label>
+    <label>Step for +/− <input name="step" type="number" min="0" step="any" value="{{num .H.Step}}"></label>
+    <label class="count-only">Unit <input name="unit" value="{{.H.Unit}}" placeholder="problems" maxlength="20"></label>
+  </div>
+
+  {{if or careerOn .H.Linked}}
+  <label class="count-only">Source
+    <select name="source">
+      <option value="manual">Logged by hand on the Today page</option>
+      <option value="career_outreach" {{if .H.Linked}}selected{{end}}>Counted from Career (outreach messages + applications submitted)</option>
+    </select>
+  </label>
+  {{end}}
+
+  <label class="count-only">Breakdown <small class="muted">(optional, comma-separated, e.g. easy, medium, hard)</small>
+    <input name="breakdown" value="{{.H.Breakdown}}" maxlength="100">
+  </label>
+
+  <fieldset>
+    <legend>Days <span class="day-presets"><button type="button" data-days="0,1,2,3,4,5,6">Every day</button><button type="button" data-days="0,1,2,3,4">Weekdays</button><button type="button" data-days="5,6">Weekends</button></span></legend>
+    {{range .Days}}<label class="chip"><input type="checkbox" name="days" value="{{.Bit}}" {{if .On}}checked{{end}}> {{.Name}}</label>{{end}}
+  </fieldset>
+
+  <label>Reminder time <small class="muted">(optional; notifications come in a later version)</small>
+    <input name="reminder_time" type="time" value="{{.H.ReminderTime}}">
+  </label>
+
+  <label>Notes <textarea name="description" rows="2" maxlength="500">{{.H.Description}}</textarea></label>
+
+  {{if not .IsNew}}<p class="muted">A new target applies from today. Past days keep the target they were logged with.</p>{{end}}
+
+  <div class="actions">
+    <button type="submit" class="btn primary">Save</button>
+    <a href="/habits">Cancel</a>
+  </div>
+</form>
+{{if not .IsNew}}
+<form method="post" action="/habits/{{.H.ID}}/delete" class="danger-zone" data-confirm="Delete “{{.H.Name}}” and all of its history? This can't be undone.">
+  <button class="link-btn danger">Delete habit</button>
+</form>
+{{end}}
+{{end}}
